@@ -7,6 +7,8 @@ import './App.css'
 function App() {
 
   const [data, setData] = useState({ messaggio: "Caricamento...", configurazioneUsata: "" });
+  const [aziende, setAziende] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Azure mappa automaticamente il backend sotto la rotta /api
@@ -15,6 +17,17 @@ function App() {
       .then(data => setData(data))
       .catch(err => console.error("Errore:", err));
   }, []);
+
+  useEffect(() => {
+    fetch('/api/getDatiAziendali')
+      .then(res => res.json())
+      .then(data => {
+        setAziende(data);
+        setLoading(false);
+      })
+      .catch(err => console.error("Errore:", err));
+  }, []);
+
 
   return (
     <>
@@ -34,9 +47,35 @@ function App() {
         </div>
       </section>
 
-      <div className="ticks"></div>
+      <div style={{ padding: '40px', fontFamily: 'sans-serif', backgroundColor: '#f4f4f9', minHeight: '100vh' }}>
+        <h1>Dashboard Aziendale Protetta</h1>
+        <p style={{ color: '#666' }}>I dati sottostanti passano da un canale cifrato su Azure. URL e Token del middleware sono invisibili.</p>
+        
+        {loading ? <p>Caricamento dati dal server di Azure...</p> : (
+          <table style={{ width: '100%', borderCollapse: 'collapse', backgroundColor: '#fff', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
+            <thead>
+              <tr style={{ backgroundColor: '#0078d4', color: '#fff', textAlign: 'left' }}>
+                <th style={{ padding: '12px' }}>ID</th>
+                <th style={{ padding: '12px' }}>Nome Azienda Partner</th>
+                <th style={{ padding: '12px' }}>Città Sede</th>
+              </tr>
+            </thead>
+            <tbody>
+              {aziende.map(az => (
+                <tr key={az.id} style={{ borderBottom: '1px solid #ddd' }}>
+                  <td style={{ padding: '12px' }}>{az.id}</td>
+                  <td style={{ padding: '12px', fontWeight: 'bold' }}>{az.nomeAzienda}</td>
+                  <td style={{ padding: '12px' }}>{az.citta}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
       <section id="spacer"></section>
     </>
+    
   )
 }
 
