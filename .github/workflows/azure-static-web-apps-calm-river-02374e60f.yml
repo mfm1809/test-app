@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - versione-native
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
