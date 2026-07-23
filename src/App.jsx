@@ -1,58 +1,124 @@
 import { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import Home from './pages/Home';
 import Profilo from './pages/Profilo';
 import Aziende from './pages/Aziende';
 import Login from './pages/Login';
 
 function App() {
-  // Stato globale per sapere si l'utente è autenticato o meno
+  // Stato per l'autenticazione
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // Stato per gestire la navigazione interna (sostituisce React Router)
+  const [currentPage, setCurrentPage] = useState('Home');
 
   const handleLogin = () => setIsAuthenticated(true);
-  const handleLogout = () => setIsAuthenticated(false);
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setCurrentPage('Home');
+  };
 
-  // Se l'utente NON è loggato, mostriamo SOLO la schermata di login
+  // 1. Se l'utente NON è loggato, mostriamo SOLO il componente Login di React Native
   if (!isAuthenticated) {
     return <Login onLoginSuccess={handleLogin} />;
   }
 
-  // Se l'utente È loggato, sblocchiamo tutta l'applicazione con il Menu
+  // Funzione per decidere quale pagina mostrare nel corpo centrale
+  const renderPage = () => {
+    switch (currentPage) {
+      case 'Home':
+        return <Home />;
+      case 'Aziende':
+        return <Aziende />;
+      case 'Profilo':
+        return <Profilo />;
+      default:
+        return <Home />;
+    }
+  };
 
+  // 2. Se l'utente È loggato, sblocchiamo la Dashboard con l'Header Native
   return (
-    <Router>
-      {/* HEADER CON MENU DI NAVIGAZIONE ON TOP */}
-      <header style={{ 
-        backgroundColor: '#0078d4', 
-        padding: '15px 20px', 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        color: '#fff',
-        fontFamily: 'sans-serif'
-      }}>
-        <div style={{ fontWeight: 'bold', fontSize: '18px' }}>Azure Portal App</div>
-        <nav style={{ display: 'flex', gap: '20px' }}>
-          {/* Usiamo Link al posto di <a href> per non ricaricare la pagina */}
-          <Link to="/" style={{ color: '#fff', textDecoration: 'none' }}>Home</Link>
-          <Link to="/aziende" style={{ color: '#fff', textDecoration: 'none' }}>Aziende</Link>
-          <Link to="/profilo" style={{ color: '#fff', textDecoration: 'none' }}>Profilo</Link>
-          <button onClick={handleLogout} style={{ backgroundColor: '#d83b01', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer' }}>Esci</button>
-        </nav>
-      </header>
+    <SafeAreaView style={styles.container}>
+      {/* HEADER DI NAVIGAZIONE ON TOP */}
+      <View style={styles.header}>
+        <Text style={styles.logo}>Azure Portal App -- react native web</Text>
+        
+        <View style={styles.nav}>
+          <TouchableOpacity onPress={() => setCurrentPage('Home')}>
+            <Text style={[styles.navLink, currentPage === 'Home' && styles.activeLink]}>Home</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity onPress={() => setCurrentPage('Aziende')}>
+            <Text style={[styles.navLink, currentPage === 'Aziende' && styles.activeLink]}>Aziende</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity onPress={() => setCurrentPage('Profilo')}>
+            <Text style={[styles.navLink, currentPage === 'Profilo' && styles.activeLink]}>Profilo</Text>
+          </TouchableOpacity>
 
-      {/* CONTENUTI DELLE PAGINE DINAMICHE */}
-      <main style={{ fontFamily: 'sans-serif', backgroundColor: '#f4f4f9', minHeight: 'calc(100vh - 54px)' }}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/aziende" element={<Aziende />} />
-          <Route path="/profilo" element={<Profilo />} />
-          {/* Se un utente prova ad andare su /login da loggato, lo rispediamo alla Home */}
-          <Route path="/login" element={<Navigate to="/" />} />
-        </Routes>
-      </main>
-    </Router>
+          <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+            <Text style={styles.logoutText}>Esci</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* CORPO DELLA PAGINA DINAMICA */}
+      <View style={styles.main}>
+        {renderPage()}
+      </View>
+    </SafeAreaView>
   );
 }
+
+// STILI IN STILE REACT NATIVE (StyleSheet)
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f4f4f9',
+  },
+  header: {
+    backgroundColor: '#0078d4',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  logo: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  nav: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 20,
+  },
+  navLink: {
+    color: '#fff',
+    fontSize: 16,
+    opacity: 0.8,
+  },
+  activeLink: {
+    fontWeight: 'bold',
+    opacity: 1,
+    textDecorationLine: 'underline',
+  },
+  logoutButton: {
+    backgroundColor: '#d83b01',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 4,
+    marginLeft: 10,
+  },
+  logoutText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  main: {
+    flex: 1,
+  },
+});
 
 export default App;

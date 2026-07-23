@@ -1,41 +1,64 @@
 import { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 
 export default function Login({ onLoginSuccess }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    // Simulazione di un controllo credenziali (es. admin / admin)
+  const handlePressLogin = () => {
     if (username === 'admin' && password === 'admin') {
       setError('');
-      onLoginSuccess(); // Notifica ad App.jsx che il login è avvenuto
+      onLoginSuccess();
     } else {
-      setError('Credenziali non valide! Usa admin / admin per il test.');
+      setError('Credenziali non valide! Usa admin / admin.');
     }
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'calc(100vh - 100px)' }}>
-      <form onSubmit={handleSubmit} style={{ backgroundColor: '#fff', padding: '30px', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)', width: '320px' }}>
-        <h2 style={{ textAlign: 'center', marginBottom: '20px', color: '#333' }}>Accedi al Portale</h2>
+    <View style={styles.container}>
+      <View style={styles.card}>
+        <Text style={styles.title}>Accedi al Portale</Text>
         
-        {error && <p style={{ color: 'red', fontSize: '14px', textAlign: 'center' }}>{error}</p>}
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
         
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px' }}>Username</label>
-          <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} style={{ width: '100%', padding: '8px', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }} required />
-        </div>
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Username</Text>
+          <TextInput 
+            value={username} 
+            onChangeText={setUsername} // In React Native si usa onChangeText al posto di onChange
+            style={styles.input}
+            autoCapitalize="none"
+          />
+        </View>
         
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', marginBottom: '5px' }}>Password</label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} style={{ width: '100%', padding: '8px', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }} required />
-        </div>
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Password</Text>
+          <TextInput 
+            value={password} 
+            onChangeText={setPassword} 
+            secureTextEntry={true} // Nasconde i caratteri della password
+            style={styles.input}
+            autoCapitalize="none"
+          />
+        </View>
         
-        <button type="submit" style={{ width: '100%', padding: '10px', backgroundColor: '#0078d4', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>Accedi</button>
-      </form>
-    </div>
+        <TouchableOpacity style={styles.button} onPress={handlePressLogin}>
+          <Text style={styles.buttonText}>Accedi</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f4f4f9', padding: 20 },
+  card: { backgroundColor: '#fff', padding: 30, borderRadius: 8, width: '100%', maxWidth: 340, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 5 },
+  title: { fontSize: 22, fontWeight: 'bold', textAlign: 'center', marginBottom: 20, color: '#333' },
+  errorText: { color: 'red', fontSize: 14, textAlign: 'center', marginBottom: 15 },
+  inputGroup: { marginBottom: 15 },
+  label: { fontSize: 14, marginBottom: 5, color: '#666' },
+  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 4, padding: 10, fontSize: 16 },
+  button: { backgroundColor: '#0078d4', padding: 12, borderRadius: 4, alignItems: 'center', marginTop: 10 },
+  buttonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }
+});
