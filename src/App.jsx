@@ -1,82 +1,58 @@
-import { useEffect, useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
+import Home from './pages/Home';
+import Profilo from './pages/Profilo';
+import Aziende from './pages/Aziende';
+import Login from './pages/Login';
 
 function App() {
+  // Stato globale per sapere si l'utente è autenticato o meno
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const [data, setData] = useState({ messaggio: "Caricamento...", configurazioneUsata: "" });
-  const [aziende, setAziende] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const handleLogin = () => setIsAuthenticated(true);
+  const handleLogout = () => setIsAuthenticated(false);
 
-  useEffect(() => {
-    // Azure mappa automaticamente il backend sotto la rotta /api
-    fetch('/api/getSecretData')
-      .then(res => res.json())
-      .then(data => setData(data))
-      .catch(err => console.error("Errore:", err));
-  }, []);
+  // Se l'utente NON è loggato, mostriamo SOLO la schermata di login
+  if (!isAuthenticated) {
+    return <Login onLoginSuccess={handleLogin} />;
+  }
 
-  useEffect(() => {
-    fetch('/api/getDatiAziendali')
-      .then(res => res.json())
-      .then(data => {
-        setAziende(data);
-        setLoading(false);
-      })
-      .catch(err => console.error("Errore:", err));
-  }, []);
-
+  // Se l'utente È loggato, sblocchiamo tutta l'applicazione con il Menu
 
   return (
-    <>
-      <section id="center">
-        <div style={{ padding: '40px', fontFamily: 'sans-serif' }}>
-          <h1>Test Sicurezza Backend Azure</h1>
-          <div style={{ padding: '20px', backgroundColor: '#eef', borderRadius: '8px', color: '#333' }}>
-            <p><strong>Risposta dal Server:</strong> {data.messaggio}</p>
-            <p><strong>Dato Segreto (Letto solo lato server):</strong> {data.configurazioneUsata}</p>
-          </div>
-        </div>
+    <Router>
+      {/* HEADER CON MENU DI NAVIGAZIONE ON TOP */}
+      <header style={{ 
+        backgroundColor: '#0078d4', 
+        padding: '15px 20px', 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        color: '#fff',
+        fontFamily: 'sans-serif'
+      }}>
+        <div style={{ fontWeight: 'bold', fontSize: '18px' }}>Azure Portal App</div>
+        <nav style={{ display: 'flex', gap: '20px' }}>
+          {/* Usiamo Link al posto di <a href> per non ricaricare la pagina */}
+          <Link to="/" style={{ color: '#fff', textDecoration: 'none' }}>Home</Link>
+          <Link to="/aziende" style={{ color: '#fff', textDecoration: 'none' }}>Aziende</Link>
+          <Link to="/profilo" style={{ color: '#fff', textDecoration: 'none' }}>Profilo</Link>
+          <button onClick={handleLogout} style={{ backgroundColor: '#d83b01', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer' }}>Esci</button>
+        </nav>
+      </header>
 
-        <div style={{ padding: '20px', backgroundColor: '#222', color: '#fff', borderRadius: '8px', marginTop: '20px' }}>
-          <h2 style={{ color: '#fff' }}>Test Variabili d'Ambiente</h2>
-          <p><strong>Ambiente:</strong> {import.meta.env.VITE_ENVIRONMENT}</p>
-          <p><strong>URL API configurato:</strong> {import.meta.env.VITE_API_URL}</p>
-        </div>
-      </section>
-
-      <div style={{ padding: '40px', fontFamily: 'sans-serif', backgroundColor: '#f4f4f9', minHeight: '100vh' }}>
-        <h1>Dashboard Aziendale Protetta</h1>
-        <p style={{ color: '#666' }}>I dati sottostanti passano da un canale cifrato su Azure. URL e Token del middleware sono invisibili.</p>
-        
-        {loading ? <p>Caricamento dati dal server di Azure...</p> : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', backgroundColor: '#fff', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
-            <thead>
-              <tr style={{ backgroundColor: '#0078d4', color: '#fff', textAlign: 'left' }}>
-                <th style={{ padding: '12px' }}>ID</th>
-                <th style={{ padding: '12px' }}>Nome Azienda Partner</th>
-                <th style={{ padding: '12px' }}>Città Sede</th>
-              </tr>
-            </thead>
-            <tbody>
-              {aziende.map(az => (
-                <tr key={az.id} style={{ borderBottom: '1px solid #ddd' }}>
-                  <td style={{ padding: '12px' }}>{az.id}</td>
-                  <td style={{ padding: '12px', fontWeight: 'bold' }}>{az.nomeAzienda}</td>
-                  <td style={{ padding: '12px' }}>{az.citta}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-
-      <section id="spacer"></section>
-    </>
-    
-  )
+      {/* CONTENUTI DELLE PAGINE DINAMICHE */}
+      <main style={{ fontFamily: 'sans-serif', backgroundColor: '#f4f4f9', minHeight: 'calc(100vh - 54px)' }}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/aziende" element={<Aziende />} />
+          <Route path="/profilo" element={<Profilo />} />
+          {/* Se un utente prova ad andare su /login da loggato, lo rispediamo alla Home */}
+          <Route path="/login" element={<Navigate to="/" />} />
+        </Routes>
+      </main>
+    </Router>
+  );
 }
 
-export default App
+export default App;
