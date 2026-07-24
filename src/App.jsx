@@ -4,6 +4,7 @@ import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-na
 import Home from './pages/Home';
 import Profilo from './pages/Profilo';
 import Aziende from './pages/Aziende';
+import NuovaAzienda from './pages/NuovaAzienda';
 import Login from './pages/Login';
 
 function App() {
@@ -31,6 +32,10 @@ function App() {
             <Link to="/aziende" underlayColor="transparent">
               <Text style={styles.navLink}>Aziende</Text>
             </Link>
+
+            <Link to="/nuova-azienda" underlayColor="transparent">
+              <Text style={styles.navLink}>+ Nuova Azienda</Text>
+            </Link>
             
             <Link to="/profilo" underlayColor="transparent">
               <Text style={styles.navLink}>Profilo</Text>
@@ -47,6 +52,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/aziende" element={<Aziende />} />
+            <Route path="/nuova-azienda" element={<NuovaAzienda />} />
             <Route path="/profilo" element={<Profilo />} />
             <Route path="/login" element={<Navigate to="/" />} />
           </Routes>
