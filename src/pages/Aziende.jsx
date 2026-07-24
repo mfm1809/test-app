@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { secureFetch } from '../apiClient';
 
 export default function Aziende() {
   const [aziende, setAziende] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/getDatiAziendali')
+    secureFetch('/api/getDatiAziendali')
       .then(res => res.json())
       .then(data => {
         setAziende(data);

@@ -1,50 +1,61 @@
 import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 export default function Login({ onLoginSuccess }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handlePressLogin = () => {
-    if (username === 'admin' && password === 'admin') {
-      setError('');
-      onLoginSuccess();
-    } else {
-      setError('Credenziali non valide! Usa admin / admin.');
+  const handlePressLogin = async () => {
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        // SALVATAGGIO UNIVERSALE DEI TOKEN (Valido per Browser e Smartphone)
+        await AsyncStorage.setItem('access_token', data.accessToken);
+        await AsyncStorage.setItem('refresh_token', data.refreshToken);
+        
+        onLoginSuccess(); // Sblocca l'app
+      } else {
+        setError(data.errore || 'Errore di autenticazione.');
+      }
+    } catch (err) {
+      setError('Impossibile connettersi al server.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.card}>
-        <Text style={styles.title}>Accedi al Portale</Text>
-        
+        <Text style={styles.title}>Accesso IAM Cliente</Text>
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
         
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Username</Text>
-          <TextInput 
-            value={username} 
-            onChangeText={setUsername} // In React Native si usa onChangeText al posto di onChange
-            style={styles.input}
-            autoCapitalize="none"
-          />
+          <TextInput value={username} onChangeText={setUsername} style={styles.input} autoCapitalize="none" />
         </View>
         
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Password</Text>
-          <TextInput 
-            value={password} 
-            onChangeText={setPassword} 
-            secureTextEntry={true} // Nasconde i caratteri della password
-            style={styles.input}
-            autoCapitalize="none"
-          />
+          <TextInput value={password} onChangeText={setPassword} secureTextEntry={true} style={styles.input} autoCapitalize="none" />
         </View>
         
-        <TouchableOpacity style={styles.button} onPress={handlePressLogin}>
-          <Text style={styles.buttonText}>Accedi</Text>
+        <TouchableOpacity style={styles.button} onPress={handlePressLogin} disabled={loading}>
+          <Text style={styles.buttonText}>{loading ? 'Connessione IAM...' : 'Accedi'}</Text>
         </TouchableOpacity>
       </View>
     </View>

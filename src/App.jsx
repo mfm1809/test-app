@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Router, Routes, Route, Link, Navigate } from './CustomRouter'; 
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ActivityIndicator } from 'react-native';
 import Home from './pages/Home';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Profilo from './pages/Profilo';
 import Aziende from './pages/Aziende';
 import NuovaAzienda from './pages/NuovaAzienda';
@@ -9,10 +10,50 @@ import Login from './pages/Login';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true); // Stato di caricamento iniziale
+
+  // Controlla se esiste già una sessione attiva all'avvio dell'app (o dopo un F5)
+  useEffect(() => {
+    const checkToken = async () => {
+      try {
+        const token = await AsyncStorage.getItem('access_token');
+        if (token) {
+          setIsAuthenticated(true);
+        }
+      } catch (error) {
+        console.error("Errore durante il recupero del token:", error);
+      } finally {
+        setCheckingAuth(false); // Fine del controllo iniziale
+      }
+    };
+
+    checkToken();
+  }, []);
 
   const handleLogin = () => setIsAuthenticated(true);
-  const handleLogout = () => setIsAuthenticated(false);
 
+  const handleLogout = async () => {
+    try {
+      // CANCELLIAMO I TOKEN DALLA MEMORIA (Valido per Browser e Smartphone)
+      await AsyncStorage.removeItem('access_token');
+      await AsyncStorage.removeItem('refresh_token');
+      setIsAuthenticated(false);
+    } catch (error) {
+      console.error("Errore durante il logout:", error);
+    }
+  };
+
+  // Se l'app sta ancora verificando la presenza del token in memoria, mostra una schermata di caricamento
+  if (checkingAuth) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f4f4f9' }}>
+        <ActivityIndicator size="large" color="#0078d4" />
+        <Text style={{ marginTop: 10, color: '#666' }}>Verifica sessione in corso...</Text>
+      </View>
+    );
+  }
+
+  // Se l'utente NON è loggato, mostriamo solo il Login
   if (!isAuthenticated) {
     return <Login onLoginSuccess={handleLogin} />;
   }
