@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Profilo from './pages/Profilo';
 import Aziende from './pages/Aziende';
 import NuovaAzienda from './pages/NuovaAzienda';
+import Consumi from './pages/Consumi';
 import Login from './pages/Login';
 
 function App() {
@@ -82,6 +83,10 @@ function App() {
               <Text style={styles.navLink}>Profilo</Text>
             </Link>
 
+            <Link to="/consumi" underlayColor="transparent">
+              <Text style={styles.navLink}>Consumi</Text>
+            </Link>
+
             <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
               <Text style={styles.logoutText}>Esci</Text>
             </TouchableOpacity>
@@ -95,6 +100,7 @@ function App() {
             <Route path="/aziende" element={<Aziende />} />
             <Route path="/nuova-azienda" element={<NuovaAzienda />} />
             <Route path="/profilo" element={<Profilo />} />
+            <Route path="/consumi" element={<Consumi />} />
             <Route path="/login" element={<Navigate to="/" />} />
           </Routes>
         </View>

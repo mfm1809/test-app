@@ -11,12 +11,15 @@
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^3.1.1",
+    "@react-native-picker/picker": "^2.11.4",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-native": "^0.86.0",
+    "react-native-svg": "^15.15.5",
     "react-native-web": "^0.21.2",
     "react-router-dom": "^7.18.1",
     "react-router-native": "^6.30.4",
+    "victory-native": "^36.9.2",
     "vite-plugin-react-native-web": "^3.2.0"
   },
   "devDependencies": {
