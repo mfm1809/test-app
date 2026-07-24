@@ -41,6 +41,14 @@ app.http('getContenutiCms', {
                         }
                     };
                 }
+                if (paginaRichiesta==="profile") {
+                    datiCms = {
+                        result: {
+                            titleProfilo: "Il tuo profilo (cms)...",
+                            subTitleProfilo: "Dati dell'utente in sessione... (cms)"
+                        }
+                    };
+                }
             } else {
                 // CHIAMATA REALE: Scatta quando inserirai l'ID reale del cliente
                 const res = await fetch(urlSanity, {
